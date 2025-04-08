@@ -2,8 +2,8 @@
 
 namespace TrainingBookV2.Models
 {
-    public class Role : IdentityUser<int>
+    public class Role : IdentityRole<int>
     {
-        public ICollection<ApplicationUser> Users { get; set; }
+        public ICollection<IdentityUserRole<int>> UserRoles { get; set; }
     }
 }
