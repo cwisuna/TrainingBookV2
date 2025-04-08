@@ -138,7 +138,8 @@ namespace TrainingBookV2.Data
             builder.Entity<UserTrainingStep>()
                 .HasOne(uts => uts.UserTrainingBook)
                 .WithMany(b => b.TrainingSteps)
-                .HasForeignKey(uts => uts.UserTrainingBookID);
+                .HasForeignKey(uts => uts.UserTrainingBookID)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<UserTrainingStep>()
                 .HasOne(uts => uts.Step)
