@@ -35,6 +35,13 @@ namespace TrainingBookV2.Data
             builder.Entity<ApplicationUser>().Property(u => u.Id).HasColumnName("UserID");
             builder.Entity<Role>().Property(r => r.Id).HasColumnName("RoleID");
 
+            builder.Entity<ApplicationUser>()
+            .HasOne(u => u.Department)
+            .WithMany(d => d.Users)
+            .HasForeignKey(u => u.DepartmentID)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+            
             // department table
             builder.Entity<Department>()
                 .ToTable("Departments")
