@@ -1,0 +1,108 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TrainingBookV2.Data;
+using TrainingBookV2.Models;
+
+namespace TrainingBookV2.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UserTrainingStepsController : ControllerBase
+    {
+        private readonly AppDbContext dbContext;
+
+        public UserTrainingStepsController(AppDbContext context)
+        {
+            dbContext = context;
+        }
+
+        // GET: api/UserTrainingSteps
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserTrainingStep>>> GetUserTrainingStep()
+        {
+            return await dbContext.UserTrainingStep.ToListAsync();
+        }
+
+        // GET: api/UserTrainingSteps/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserTrainingStep>> GetUserTrainingStep(int id)
+        {
+            var userTrainingStep = await dbContext.UserTrainingStep.FindAsync(id);
+
+            if (userTrainingStep == null)
+            {
+                return NotFound();
+            }
+
+            return userTrainingStep;
+        }
+
+        // PUT: api/UserTrainingSteps/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutUserTrainingStep(int id, UserTrainingStep userTrainingStep)
+        {
+            if (id != userTrainingStep.UserTrainingStepID)
+            {
+                return BadRequest();
+            }
+
+            dbContext.Entry(userTrainingStep).State = EntityState.Modified;
+
+            try
+            {
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserTrainingStepExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // POST: api/UserTrainingSteps
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<UserTrainingStep>> PostUserTrainingStep(UserTrainingStep userTrainingStep)
+        {
+            dbContext.UserTrainingStep.Add(userTrainingStep);
+            await dbContext.SaveChangesAsync();
+
+            return CreatedAtAction("GetUserTrainingStep", new { id = userTrainingStep.UserTrainingStepID }, userTrainingStep);
+        }
+
+        // DELETE: api/UserTrainingSteps/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUserTrainingStep(int id)
+        {
+            var userTrainingStep = await dbContext.UserTrainingStep.FindAsync(id);
+            if (userTrainingStep == null)
+            {
+                return NotFound();
+            }
+
+            dbContext.UserTrainingStep.Remove(userTrainingStep);
+            await dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool UserTrainingStepExists(int id)
+        {
+            return dbContext.UserTrainingStep.Any(e => e.UserTrainingStepID == id);
+        }
+    }
+}
