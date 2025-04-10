@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
+using TrainingBookV2.Dtos;
 using TrainingBookV2.Models;
 
 namespace TrainingBookV2.Controllers
@@ -15,22 +17,53 @@ namespace TrainingBookV2.Controllers
     public class RolesController : ControllerBase
     {
         private readonly AppDbContext dbContext;
+        private readonly RoleManager<Role> roleManager;
 
-        public RolesController(AppDbContext context)
+
+        public RolesController(AppDbContext context, RoleManager<Role> roleManager)
         {
             dbContext = context;
+            this.roleManager = roleManager;
         }
 
         // GET: api/Roles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Role>>> GetAllRoles()
+        public async Task<ActionResult<IEnumerable<RoleDto>>> GetAllRoles()
         {
-            return await dbContext.Roles.ToListAsync();
+            var roles = await dbContext.Roles.Select(r => new RoleDto
+            {
+                RoleID = r.Id,
+                RoleName = r.Name,
+            }).ToListAsync();
+
+            return Ok(roles);
         }
 
         // GET: api/Roles/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Role>> GetRoleById(int id)
+        public async Task<ActionResult<RoleDto>> GetRoleById(int id)
+        {
+            var role = await dbContext.Roles
+                .Where(r => r.Id == id)
+                .Select(r => new RoleDto
+                {
+                    RoleID = r.Id,
+                    RoleName = r.Name,
+                })
+                .FirstOrDefaultAsync();
+
+            if (role == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(role);
+        }
+
+        // PUT: api/Roles/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateRole(int id, UpdateRoleDto dto)
         {
             var role = await dbContext.Roles.FindAsync(id);
 
@@ -39,26 +72,13 @@ namespace TrainingBookV2.Controllers
                 return NotFound();
             }
 
-            return role;
-        }
-
-        // PUT: api/Roles/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRole(int id, Role role)
-        {
-            if (id != role.Id)
-            {
-                return BadRequest();
-            }
-
-            dbContext.Entry(role).State = EntityState.Modified;
+            role.Name = dto.RoleName;
 
             try
             {
                 await dbContext.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch(DbUpdateConcurrencyException)
             {
                 if (!RoleExists(id))
                 {
@@ -76,12 +96,27 @@ namespace TrainingBookV2.Controllers
         // POST: api/Roles
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Role>> CreateRole(Role role)
+        public async Task<ActionResult<RoleDto>> CreateRole(CreateRoleDto dto)
         {
-            dbContext.Roles.Add(role);
-            await dbContext.SaveChangesAsync();
+            var role = new Role
+            {
+                Name = dto.RoleName,
+            };
 
-            return CreatedAtAction("GetRole", new { id = role.Id }, role);
+            var result = await roleManager.CreateAsync(role);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            var roleDto = new RoleDto
+            {
+                RoleID = role.Id,
+                RoleName = role.Name
+            };
+
+            return CreatedAtAction(nameof(GetRoleById), new { id = role.Id }, roleDto);
         }
 
         // DELETE: api/Roles/5

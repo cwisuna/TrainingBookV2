@@ -47,6 +47,7 @@ namespace TrainingBookV2.Controllers
                     DepartmentName = d.DepartmentName,
                 })
                 .FirstOrDefaultAsync();
+
             if (department == null)
             {
                 return NotFound();
