@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
+using TrainingBookV2.Dtos;
 using TrainingBookV2.Models;
 
 namespace TrainingBookV2.Controllers
@@ -23,23 +24,47 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/ApplicationUsers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllUsers()
+        public async Task<ActionResult<IEnumerable<ApplicationUserDto>>> GetAllUsers()
         {
-            return await dbContext.Users.ToListAsync();
+            var users = await dbContext.Users
+                .Select(u => new ApplicationUserDto
+                {
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    UserName = u.UserName,
+                    RoleID = u.RoleID,
+                    RoleName = u.Role.Name,
+                    DepartmentID = u.DepartmentID,
+                    DepartmentName = u.Department.DepartmentName
+                })
+                .ToListAsync();
+
+            return Ok(users);
         }
 
         // GET: api/ApplicationUsers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApplicationUser>> GetUserById(int id)
+        public async Task<ActionResult<ApplicationUserDto>> GetUserById(int id)
         {
-            var applicationUser = await dbContext.Users.FindAsync(id);
+            var user = await dbContext.Users.Where(u => u.Id == id)
+                .Select(u => new ApplicationUserDto
+                {
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    UserName = u.UserName,
+                    RoleID = u.RoleID,
+                    RoleName = u.Role.Name,
+                    DepartmentID = u.DepartmentID,
+                    DepartmentName = u.Department.DepartmentName
+                })
+                .FirstOrDefaultAsync();
 
-            if (applicationUser == null)
+            if(user == null)
             {
-                return NotFound();
+                NotFound();
             }
 
-            return applicationUser;
+            return Ok(user);    
         }
 
         // PUT: api/ApplicationUsers/5
@@ -71,17 +96,6 @@ namespace TrainingBookV2.Controllers
             }
 
             return NoContent();
-        }
-
-        // POST: api/ApplicationUsers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<ApplicationUser>> CreateUser(ApplicationUser applicationUser)
-        {
-            dbContext.Users.Add(applicationUser);
-            await dbContext.SaveChangesAsync();
-
-            return CreatedAtAction("GetApplicationUser", new { id = applicationUser.Id }, applicationUser);
         }
 
         // DELETE: api/ApplicationUsers/5

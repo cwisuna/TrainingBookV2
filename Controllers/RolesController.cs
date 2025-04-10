@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,13 @@ namespace TrainingBookV2.Controllers
     {
         private readonly AppDbContext dbContext;
         private readonly RoleManager<Role> roleManager;
+        private readonly UserManager<ApplicationUser> userManager;
 
-
-        public RolesController(AppDbContext context, RoleManager<Role> roleManager)
+        public RolesController(AppDbContext context, RoleManager<Role> roleManager, UserManager<ApplicationUser> userManager)
         {
-            dbContext = context;
+            this.dbContext = context;
             this.roleManager = roleManager;
+            this.userManager = userManager;
         }
 
         // GET: api/Roles
@@ -134,6 +136,26 @@ namespace TrainingBookV2.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("{userId}/assign-role")]
+        public async Task<IActionResult> AssignRoleToUser(string userId, [FromBody] AssignRoleDto dto)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found.");
+
+            var roleExists = await roleManager.RoleExistsAsync(dto.RoleName);
+            if (!roleExists)
+                return BadRequest("Role does not exist.");
+
+            var result = await userManager.AddToRoleAsync(user, dto.RoleName);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok("Role assigned successfully.");
+        }
+
 
         private bool RoleExists(int id)
         {
