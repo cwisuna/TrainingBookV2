@@ -23,14 +23,14 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/UserTrainingSteps
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserTrainingStep>>> GetUserTrainingStep()
+        public async Task<ActionResult<IEnumerable<UserTrainingStep>>> GetAllUserTrainingSteps()
         {
             return await dbContext.UserTrainingStep.ToListAsync();
         }
 
         // GET: api/UserTrainingSteps/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserTrainingStep>> GetUserTrainingStep(int id)
+        public async Task<ActionResult<UserTrainingStep>> GetUserTrainingStepsById(int id)
         {
             var userTrainingStep = await dbContext.UserTrainingStep.FindAsync(id);
 
@@ -45,7 +45,7 @@ namespace TrainingBookV2.Controllers
         // PUT: api/UserTrainingSteps/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserTrainingStep(int id, UserTrainingStep userTrainingStep)
+        public async Task<IActionResult> UpdateUserTrainingSteps(int id, UserTrainingStep userTrainingStep)
         {
             if (id != userTrainingStep.UserTrainingStepID)
             {
@@ -76,7 +76,7 @@ namespace TrainingBookV2.Controllers
         // POST: api/UserTrainingSteps
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<UserTrainingStep>> PostUserTrainingStep(UserTrainingStep userTrainingStep)
+        public async Task<ActionResult<UserTrainingStep>> CreateUserTrainingSteps(UserTrainingStep userTrainingStep)
         {
             dbContext.UserTrainingStep.Add(userTrainingStep);
             await dbContext.SaveChangesAsync();

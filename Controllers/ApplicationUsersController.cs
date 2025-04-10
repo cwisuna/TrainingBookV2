@@ -23,14 +23,14 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/ApplicationUsers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllUsers()
         {
             return await dbContext.Users.ToListAsync();
         }
 
         // GET: api/ApplicationUsers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApplicationUser>> GetApplicationUser(int id)
+        public async Task<ActionResult<ApplicationUser>> GetUserById(int id)
         {
             var applicationUser = await dbContext.Users.FindAsync(id);
 
@@ -45,7 +45,7 @@ namespace TrainingBookV2.Controllers
         // PUT: api/ApplicationUsers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutApplicationUser(int id, ApplicationUser applicationUser)
+        public async Task<IActionResult> UpdateUser(int id, ApplicationUser applicationUser)
         {
             if (id != applicationUser.Id)
             {
@@ -76,7 +76,7 @@ namespace TrainingBookV2.Controllers
         // POST: api/ApplicationUsers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ApplicationUser>> PostApplicationUser(ApplicationUser applicationUser)
+        public async Task<ActionResult<ApplicationUser>> CreateUser(ApplicationUser applicationUser)
         {
             dbContext.Users.Add(applicationUser);
             await dbContext.SaveChangesAsync();
@@ -86,7 +86,7 @@ namespace TrainingBookV2.Controllers
 
         // DELETE: api/ApplicationUsers/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteApplicationUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
             var applicationUser = await dbContext.Users.FindAsync(id);
             if (applicationUser == null)

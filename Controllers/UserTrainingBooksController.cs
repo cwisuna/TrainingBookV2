@@ -23,14 +23,14 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/UserTrainingBooks
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserTrainingBook>>> GetUserTrainingBooks()
+        public async Task<ActionResult<IEnumerable<UserTrainingBook>>> GetAllUserTrainingBooks()
         {
             return await dbContext.UserTrainingBooks.ToListAsync();
         }
 
         // GET: api/UserTrainingBooks/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserTrainingBook>> GetUserTrainingBook(int id)
+        public async Task<ActionResult<UserTrainingBook>> GetUserTrainingBookById(int id)
         {
             var userTrainingBook = await dbContext.UserTrainingBooks.FindAsync(id);
 
@@ -45,7 +45,7 @@ namespace TrainingBookV2.Controllers
         // PUT: api/UserTrainingBooks/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserTrainingBook(int id, UserTrainingBook userTrainingBook)
+        public async Task<IActionResult> UpdateUserTrainingBook(int id, UserTrainingBook userTrainingBook)
         {
             if (id != userTrainingBook.UserTrainingBookID)
             {
@@ -76,7 +76,7 @@ namespace TrainingBookV2.Controllers
         // POST: api/UserTrainingBooks
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<UserTrainingBook>> PostUserTrainingBook(UserTrainingBook userTrainingBook)
+        public async Task<ActionResult<UserTrainingBook>> CreateUserTrainingBook(UserTrainingBook userTrainingBook)
         {
             dbContext.UserTrainingBooks.Add(userTrainingBook);
             await dbContext.SaveChangesAsync();

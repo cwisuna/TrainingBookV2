@@ -23,14 +23,14 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/Roles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
+        public async Task<ActionResult<IEnumerable<Role>>> GetAllRoles()
         {
             return await dbContext.Roles.ToListAsync();
         }
 
         // GET: api/Roles/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Role>> GetRole(int id)
+        public async Task<ActionResult<Role>> GetRoleById(int id)
         {
             var role = await dbContext.Roles.FindAsync(id);
 
@@ -45,7 +45,7 @@ namespace TrainingBookV2.Controllers
         // PUT: api/Roles/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRole(int id, Role role)
+        public async Task<IActionResult> UpdateRole(int id, Role role)
         {
             if (id != role.Id)
             {
@@ -76,7 +76,7 @@ namespace TrainingBookV2.Controllers
         // POST: api/Roles
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Role>> PostRole(Role role)
+        public async Task<ActionResult<Role>> CreateRole(Role role)
         {
             dbContext.Roles.Add(role);
             await dbContext.SaveChangesAsync();

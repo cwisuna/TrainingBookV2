@@ -23,14 +23,14 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/Departments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
+        public async Task<ActionResult<IEnumerable<Department>>> GetAllDepartments()
         {
             return await dbContext.Departments.ToListAsync();
         }
 
         // GET: api/Departments/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Department>> GetDepartment(int id)
+        public async Task<ActionResult<Department>> GetDepartmentById(int id)
         {
             var department = await dbContext.Departments.FindAsync(id);
 
@@ -45,7 +45,7 @@ namespace TrainingBookV2.Controllers
         // PUT: api/Departments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDepartment(int id, Department department)
+        public async Task<IActionResult> UpdateDepartment(int id, Department department)
         {
             if (id != department.DepartmentID)
             {
@@ -76,7 +76,7 @@ namespace TrainingBookV2.Controllers
         // POST: api/Departments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Department>> PostDepartment(Department department)
+        public async Task<ActionResult<Department>> CreateDepartment(Department department)
         {
             dbContext.Departments.Add(department);
             await dbContext.SaveChangesAsync();
