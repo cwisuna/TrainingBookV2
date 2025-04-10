@@ -66,15 +66,19 @@ namespace TrainingBookV2.Controllers
         // PUT: api/ApplicationUsers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, ApplicationUser applicationUser)
+        public async Task<IActionResult> UpdateUser(int id, UpdateApplicationUserDto dto)
         {
-            if (id != applicationUser.Id)
+           var user = await dbContext.Users.FindAsync(id);
+            if (user == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            dbContext.Entry(applicationUser).State = EntityState.Modified;
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.UserName = dto.UserName;
 
+            dbContext.Entry(user).State = EntityState.Modified;
             try
             {
                 await dbContext.SaveChangesAsync();
@@ -90,7 +94,6 @@ namespace TrainingBookV2.Controllers
                     throw;
                 }
             }
-
             return NoContent();
         }
 
