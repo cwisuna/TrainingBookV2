@@ -113,25 +113,27 @@ namespace TrainingBookV2.Controllers
             return NoContent();
         }
 
-        //[HttpPut("{userId}/assign-department/{departmentId}")]  PUTTING ON HOLD FOR NOW 
-        //public async Task<IActionResult> AssignUserToDepartment(int userId, int departmentId)
-        //{
-        //    var user = await dbContext.Users.FindAsync(userId);
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPut("{userId}/assign-department/{departmentId}")]
+        public async Task<IActionResult> AssignUserToDepartment(int userId, int departmentId)
+        {
+            var user = await dbContext.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
 
-        //    var department = await dbContext.Departments.FindAsync(departmentId);
-        //    if (department == null)
-        //    {
-        //        return NotFound();
-        //    }
+            var department = await dbContext.Departments.FindAsync(departmentId);
+            if (department == null)
+            {
+                return NotFound();
+            }
 
-        //    user.DepartmentID = departmentId;
+            user.DepartmentID = departmentId;
 
-        //    return NoContent();
-        //}
+            await dbContext.SaveChangesAsync(); 
+
+            return NoContent();
+        }
 
         private bool ApplicationUserExists(int id)
         {
