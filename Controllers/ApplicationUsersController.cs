@@ -32,8 +32,6 @@ namespace TrainingBookV2.Controllers
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     UserName = u.UserName,
-                    RoleID = u.RoleID,
-                    RoleName = u.Role.Name,
                     DepartmentID = u.DepartmentID,
                     DepartmentName = u.Department.DepartmentName
                 })
@@ -52,8 +50,6 @@ namespace TrainingBookV2.Controllers
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     UserName = u.UserName,
-                    RoleID = u.RoleID,
-                    RoleName = u.Role.Name,
                     DepartmentID = u.DepartmentID,
                     DepartmentName = u.Department.DepartmentName
                 })

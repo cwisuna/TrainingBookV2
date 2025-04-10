@@ -24,30 +24,52 @@ namespace TrainingBookV2.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<ApplicationUser>().ToTable("Users");
-            builder.Entity<Role>().ToTable("Roles");
-            builder.Entity<IdentityUserRole<int>>().ToTable("UserRoles");
+            builder.Entity<ApplicationUser>(entity =>
+            {
+                entity.ToTable("Users");
+                entity.Property(u => u.Id).HasColumnName("UserID");
+
+                entity.HasOne(u => u.Department)
+                      .WithMany(d => d.Users)
+                      .HasForeignKey(u => u.DepartmentID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(u => u.UserRoles)
+                      .WithOne()
+                      .HasForeignKey(ur => ur.UserId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Roles");
+                entity.Property(r => r.Id).HasColumnName("RoleID");
+
+                entity.HasMany(r => r.UserRoles)
+                      .WithOne()
+                      .HasForeignKey(ur => ur.RoleId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<IdentityUserRole<int>>(entity =>
+            {
+                entity.ToTable("UserRoles");
+                entity.HasKey(ur => new { ur.UserId, ur.RoleId });
+            });
+
             builder.Entity<IdentityUserClaim<int>>().ToTable("UserClaims");
             builder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
             builder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
             builder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
 
-            builder.Entity<ApplicationUser>().Property(u => u.Id).HasColumnName("UserID");
-            builder.Entity<Role>().Property(r => r.Id).HasColumnName("RoleID");
-
-            builder.Entity<ApplicationUser>()
-            .HasOne(u => u.Department)
-            .WithMany(d => d.Users)
-            .HasForeignKey(u => u.DepartmentID)
-            .OnDelete(DeleteBehavior.Restrict);
-            
-            
-            // department table
+            // Departments
             builder.Entity<Department>()
                 .ToTable("Departments")
                 .HasKey(d => d.DepartmentID);
 
-            // team members table 
+            // TeamMembers
             builder.Entity<TeamMember>()
                 .ToTable("TeamMembers")
                 .HasKey(tm => tm.TeamMemberID);
@@ -64,7 +86,7 @@ namespace TrainingBookV2.Data
                 .HasForeignKey(tm => tm.DepartmentID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // training steps table
+            // TrainingSteps
             builder.Entity<TrainingStep>()
                 .ToTable("TrainingSteps")
                 .HasKey(ts => ts.StepID);
@@ -92,7 +114,7 @@ namespace TrainingBookV2.Data
                 .HasForeignKey(ts => ts.SignedOffByUserID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // revisions table
+            // TrainingStepRevisions
             builder.Entity<TrainingStepRevision>()
                 .ToTable("TrainingStepRevisions")
                 .HasKey(r => r.RevisionID);
@@ -107,7 +129,7 @@ namespace TrainingBookV2.Data
                 .WithMany()
                 .HasForeignKey(r => r.ModifiedByUserID);
 
-            // signed off table
+            // TrainingStepSignOff
             builder.Entity<TrainingStepSignOff>()
                 .ToTable("TrainingStepSignOff")
                 .HasKey(s => s.SignOffID);
@@ -122,7 +144,7 @@ namespace TrainingBookV2.Data
                 .WithMany()
                 .HasForeignKey(s => s.ManagerID);
 
-            // training books table
+            // UserTrainingBooks
             builder.Entity<UserTrainingBook>()
                 .ToTable("UserTrainingBooks")
                 .HasKey(b => b.UserTrainingBookID);
@@ -137,7 +159,7 @@ namespace TrainingBookV2.Data
                 .WithMany(d => d.TrainingBooks)
                 .HasForeignKey(b => b.DepartmentID);
 
-            // training steps per user table
+            // UserTrainingSteps
             builder.Entity<UserTrainingStep>()
                 .ToTable("UserTrainingSteps")
                 .HasKey(uts => uts.UserTrainingStepID);
