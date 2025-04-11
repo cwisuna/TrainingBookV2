@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
+using TrainingBookV2.Dtos;
 using TrainingBookV2.Models;
 
 namespace TrainingBookV2.Controllers
@@ -73,16 +74,36 @@ namespace TrainingBookV2.Controllers
             return NoContent();
         }
 
-        // POST: api/TrainingSteps
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //// POST: api/TrainingSteps
         [HttpPost]
-        public async Task<ActionResult<TrainingStep>> CreateTrainingStep(TrainingStep trainingStep)
+        public async Task<ActionResult<CreateTrainingStepsDto>> CreateTrainingStep(CreateTrainingStepsDto dto)
         {
+
+            var departmentExists = await dbContext.Departments.AnyAsync(d => d.DepartmentID == dto.DepartmentID);
+
+            if (!departmentExists)
+            {
+                return BadRequest("The specified DepartmentID does not exist.");
+            }
+
+            var trainingStep = new TrainingStep
+            {
+                Step = dto.Step,
+                Item = dto.Item,
+                Description = dto.Description,
+                TraineeExpectation = dto.TraineeExpectation,
+                TrainerExpectation = dto.TrainerExpectation,
+                TrainingDuration = dto.TrainingDuration,
+                FilePath = dto.FilePath,
+                IsCompleted = dto.IsCompleted,
+                IsSignedOff = dto.IsSignedOff
+            };
+
             dbContext.TrainingSteps.Add(trainingStep);
             await dbContext.SaveChangesAsync();
-
-            return CreatedAtAction("GetTrainingStep", new { id = trainingStep.StepID }, trainingStep);
+            return CreatedAtAction(nameof(GetAllTrainingSteps), new { id = trainingStep.StepID }, trainingStep);
         }
+
 
         // DELETE: api/TrainingSteps/5
         [HttpDelete("{id}")]
