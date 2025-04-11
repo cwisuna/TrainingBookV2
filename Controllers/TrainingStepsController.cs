@@ -88,6 +88,7 @@ namespace TrainingBookV2.Controllers
 
             var trainingStep = new TrainingStep
             {
+                DepartmentID = dto.DepartmentID,
                 Step = dto.Step,
                 Item = dto.Item,
                 Description = dto.Description,
