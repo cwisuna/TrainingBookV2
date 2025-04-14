@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
+using TrainingBookV2.Dtos;
 using TrainingBookV2.Models;
 
 namespace TrainingBookV2.Controllers
@@ -98,6 +99,38 @@ namespace TrainingBookV2.Controllers
             await dbContext.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> AssignStepsToTrainingBook(AssignStepsToTrainingBookDto dto)
+        {
+            var book = await dbContext.UserTrainingBooks
+        .Include(b => b.TrainingSteps)
+        .FirstOrDefaultAsync(b => b.UserTrainingBookID == dto.BookId);
+
+            if (book == null)
+                return NotFound($"TrainingBook with ID {dto.BookId} not found.");
+
+            var validStepIds = await dbContext.TrainingSteps
+                .Where(ts => dto.TrainingStepIds.Contains(ts.StepID))
+                .Select(ts => ts.StepID)
+                .ToListAsync();
+
+            var existingStepIds = book.TrainingSteps.Select(ts => ts.StepID).ToHashSet();
+
+            var newUserTrainingSteps = validStepIds
+                .Where(stepId => !existingStepIds.Contains(stepId))
+                .Select(stepId => new UserTrainingStep
+                {
+                    UserTrainingBookID = dto.BookId,
+                    StepID = stepId,
+                    IsCompleted = false
+                });
+
+            dbContext.UserTrainingStep.AddRange(newUserTrainingSteps);
+            await dbContext.SaveChangesAsync();
+
+            return Ok("Training steps successfully assigned to the training book.");
         }
 
         private bool UserTrainingBookExists(int id)
