@@ -101,7 +101,7 @@ namespace TrainingBookV2.Controllers
             return NoContent();
         }
 
-        [HttpPost]
+        [HttpPost("assign-steps")]
         public async Task<ActionResult> AssignStepsToTrainingBook(AssignStepsToTrainingBookDto dto)
         {
             var book = await dbContext.UserTrainingBooks
