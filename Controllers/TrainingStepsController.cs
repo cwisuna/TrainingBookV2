@@ -24,13 +24,28 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/TrainingSteps
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TrainingStep>>> GetAllTrainingSteps()
+        public async Task<ActionResult<IEnumerable<TrainingStepsDto>>> GetAllTrainingSteps()
         {
-            return await dbContext.TrainingSteps.ToListAsync();
+            var trainingSteps = await dbContext.TrainingSteps
+                .Select(ts => new TrainingStepsDto
+                {
+                    Step = ts.Step,
+                    Item = ts.Item,
+                    Description = ts.Description,
+                    TraineeExpectation = ts.TraineeExpectation,
+                    TrainerExpectation = ts.TrainerExpectation,
+                    TrainingDuration = ts.TrainingDuration,
+                    FilePath = ts.FilePath,
+                    IsCompleted = ts.IsCompleted,
+                    IsSignedOff = ts.IsSignedOff,
+                    LastModifiedBy = ts.LastModifiedBy
+                })
+                .ToListAsync();
+            return Ok(trainingSteps);
         }
 
-        // GET: api/TrainingSteps/5
-        [HttpGet("{id}")]
+            // GET: api/TrainingSteps/5
+            [HttpGet("{id}")]
         public async Task<ActionResult<TrainingStep>> GetTrainingStepById(int id)
         {
             var trainingStep = await dbContext.TrainingSteps.FindAsync(id);
@@ -41,6 +56,35 @@ namespace TrainingBookV2.Controllers
             }
 
             return trainingStep;
+        }
+
+        // GET: api/TrainingSteps/ByDepartment/5
+        [HttpGet("by-department/{departmentId}")]
+        public async Task<ActionResult<IEnumerable<TrainingStepsDto>>> GetTrainingStepsByDepartment(int departmentId)
+        {
+            var trainingSteps = await dbContext.TrainingSteps
+                .Where(ts => ts.DepartmentID == departmentId)
+                .Select(ts => new TrainingStepsDto
+                {
+                    Step = ts.Step,
+                    Item = ts.Item,
+                    Description = ts.Description,
+                    TraineeExpectation = ts.TraineeExpectation,
+                    TrainerExpectation = ts.TrainerExpectation,
+                    TrainingDuration = ts.TrainingDuration,
+                    FilePath = ts.FilePath,
+                    IsCompleted = ts.IsCompleted,
+                    IsSignedOff = ts.IsSignedOff,
+                    LastModifiedBy = ts.LastModifiedBy
+                })
+                .ToListAsync();
+
+            if (trainingSteps == null || !trainingSteps.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(trainingSteps);
         }
 
         // PUT: api/TrainingSteps/5
@@ -97,7 +141,8 @@ namespace TrainingBookV2.Controllers
                 TrainingDuration = dto.TrainingDuration,
                 FilePath = dto.FilePath,
                 IsCompleted = dto.IsCompleted,
-                IsSignedOff = dto.IsSignedOff
+                IsSignedOff = dto.IsSignedOff,
+                LastModifiedBy = dto.LastModifiedBy
             };
 
             dbContext.TrainingSteps.Add(trainingStep);

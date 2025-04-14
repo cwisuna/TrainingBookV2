@@ -41,7 +41,7 @@ namespace TrainingBookV2.Controllers
         }
 
         // GET: api/ApplicationUsers/5
-        [HttpGet("{id}")]
+        [HttpGet("by-id/{id}")]
         public async Task<ActionResult<ApplicationUserDto>> GetUserById(int id)
         {
             var user = await dbContext.Users.Where(u => u.Id == id)
@@ -61,6 +61,27 @@ namespace TrainingBookV2.Controllers
             }
 
             return Ok(user);    
+        }
+
+        [HttpGet("by-department/{departmentId}")]
+        public async Task<ActionResult<ApplicationUserDto>>GetUsersByDepartmentId(int departmentId)
+        {
+            var users = await dbContext.Users
+                .Where(u => u.DepartmentID == departmentId)
+                .Select(u => new ApplicationUserDto
+                {
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    UserName = u.UserName,
+                    DepartmentID = u.DepartmentID,
+                    DepartmentName = u.Department.DepartmentName
+                })
+                .ToListAsync();
+            if (users == null || !users.Any())
+            {
+                return NotFound();
+            }
+            return Ok(users);
         }
 
         // PUT: api/ApplicationUsers/5

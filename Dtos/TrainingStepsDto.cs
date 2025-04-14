@@ -1,8 +1,7 @@
 ﻿namespace TrainingBookV2.Dtos
 {
-    public class CreateTrainingStepsDto
+    public class TrainingStepsDto
     {
-        public int DepartmentID { get; set; }
         public int Step { get; set; }
         public string Item { get; set; }
         public string Description { get; set; }
