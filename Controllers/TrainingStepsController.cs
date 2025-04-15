@@ -87,17 +87,56 @@ namespace TrainingBookV2.Controllers
             return Ok(trainingSteps);
         }
 
-        // PUT: api/TrainingSteps/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //// PUT: api/TrainingSteps/5
+        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> UpdateTrainingStep(int id, TrainingStep trainingStep)
+        //{
+        //    if (id != trainingStep.StepID)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    dbContext.Entry(trainingStep).State = EntityState.Modified;
+
+        //    try
+        //    {
+        //        await dbContext.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!TrainingStepExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+
+        //    return NoContent();
+        //}
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTrainingStep(int id, TrainingStep trainingStep)
+        public async Task<IActionResult> UpdateTrainingStep(int id, UpdateTrainingStepsDto dto)
         {
-            if (id != trainingStep.StepID)
+            var trainingStep = await dbContext.TrainingSteps.FindAsync(id);
+            if (trainingStep == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            dbContext.Entry(trainingStep).State = EntityState.Modified;
+            trainingStep.Step = dto.Step;
+            trainingStep.Item = dto.Item;
+            trainingStep.Description = dto.Description;
+            trainingStep.TraineeExpectation = dto.TraineeExpectation;
+            trainingStep.TrainerExpectation = trainingStep.TrainerExpectation;
+            trainingStep.TrainingDuration = dto.TrainingDuration;
+            trainingStep.FilePath = dto.FilePath;
+            trainingStep.IsCompleted = dto.IsCompleted;
+            trainingStep.IsSignedOff = dto.IsSignedOff;
+            trainingStep.LastModifiedBy = dto.LastModifiedBy;
 
             try
             {
@@ -116,6 +155,7 @@ namespace TrainingBookV2.Controllers
             }
 
             return NoContent();
+
         }
 
         //// POST: api/TrainingSteps
