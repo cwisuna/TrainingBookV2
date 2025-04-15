@@ -44,18 +44,31 @@ namespace TrainingBookV2.Controllers
             return Ok(trainingSteps);
         }
 
-            // GET: api/TrainingSteps/5
-            [HttpGet("{id}")]
-        public async Task<ActionResult<TrainingStep>> GetTrainingStepById(int id)
+        // GET: api/TrainingSteps/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<TrainingStepsDto>> GetTrainingStepById(int id)
         {
-            var trainingStep = await dbContext.TrainingSteps.FindAsync(id);
+            var trainingStep = await dbContext.TrainingSteps.Where(ts => ts.StepID == id)
+                .Select(ts => new TrainingStepsDto
+                {
+                    Step = ts.Step,
+                    Item = ts.Item,
+                    Description = ts.Description,
+                    TraineeExpectation = ts.TraineeExpectation,
+                    TrainerExpectation = ts.TrainerExpectation,
+                    TrainingDuration = ts.TrainingDuration,
+                    FilePath = ts.FilePath,
+                    IsCompleted = ts.IsCompleted,
+                    IsSignedOff = ts.IsSignedOff,
+                    LastModifiedBy = ts.LastModifiedBy
+                })
+                .FirstOrDefaultAsync();
 
             if (trainingStep == null)
             {
                 return NotFound();
             }
-
-            return trainingStep;
+            return Ok(trainingStep);
         }
 
         // GET: api/TrainingSteps/ByDepartment/5
