@@ -2,6 +2,7 @@
 {
     public class TrainingStepsDto
     {
+        public int StepID { get; set; }
         public int Step { get; set; }
         public string Item { get; set; }
         public string Description { get; set; }

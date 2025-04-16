@@ -79,6 +79,7 @@ namespace TrainingBookV2.Controllers
                 .Where(ts => ts.DepartmentID == departmentId)
                 .Select(ts => new TrainingStepsDto
                 {
+                    StepID = ts.StepID,
                     Step = ts.Step,
                     Item = ts.Item,
                     Description = ts.Description,
