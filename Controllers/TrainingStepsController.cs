@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
 using TrainingBookV2.Dtos;
@@ -26,6 +21,7 @@ namespace TrainingBookV2.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TrainingStepsDto>>> GetAllTrainingSteps()
         {
+            //getting all training steps from the db and mapping them to the TrainingStepsDto
             var trainingSteps = await dbContext.TrainingSteps
                 .Select(ts => new TrainingStepsDto
                 {
@@ -41,6 +37,8 @@ namespace TrainingBookV2.Controllers
                     LastModifiedBy = ts.LastModifiedBy
                 })
                 .ToListAsync();
+
+            //returning a list of all training steps in the db
             return Ok(trainingSteps);
         }
 
@@ -48,6 +46,7 @@ namespace TrainingBookV2.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TrainingStepsDto>> GetTrainingStepById(int id)
         {
+            //getting the single training step from the db using its stepId and mapping them to the TrainingStepsDto
             var trainingStep = await dbContext.TrainingSteps.Where(ts => ts.StepID == id)
                 .Select(ts => new TrainingStepsDto
                 {
@@ -75,6 +74,7 @@ namespace TrainingBookV2.Controllers
         [HttpGet("by-department/{departmentId}")]
         public async Task<ActionResult<IEnumerable<TrainingStepsDto>>> GetTrainingStepsByDepartment(int departmentId)
         {
+            //getting all training steps for a department by their departmentId and mapping them to the TrainingStepsDto
             var trainingSteps = await dbContext.TrainingSteps
                 .Where(ts => ts.DepartmentID == departmentId)
                 .Select(ts => new TrainingStepsDto
@@ -101,46 +101,17 @@ namespace TrainingBookV2.Controllers
             return Ok(trainingSteps);
         }
 
-        //// PUT: api/TrainingSteps/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> UpdateTrainingStep(int id, TrainingStep trainingStep)
-        //{
-        //    if (id != trainingStep.StepID)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    dbContext.Entry(trainingStep).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await dbContext.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!TrainingStepExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
-
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTrainingStep(int id, UpdateTrainingStepsDto dto)
         {
+            //getting the training step from the db using its stepId
             var trainingStep = await dbContext.TrainingSteps.FindAsync(id);
             if (trainingStep == null)
             {
                 return NotFound();
             }
 
+            //updating the training step properties with the data passed in from the dto
             trainingStep.Step = dto.Step;
             trainingStep.Item = dto.Item;
             trainingStep.Description = dto.Description;
@@ -176,7 +147,7 @@ namespace TrainingBookV2.Controllers
         [HttpPost]
         public async Task<ActionResult<CreateTrainingStepsDto>> CreateTrainingStep(CreateTrainingStepsDto dto)
         {
-
+            //checks if the department exists before creating a training step
             var departmentExists = await dbContext.Departments.AnyAsync(d => d.DepartmentID == dto.DepartmentID);
 
             if (!departmentExists)
@@ -184,6 +155,7 @@ namespace TrainingBookV2.Controllers
                 return BadRequest("The specified DepartmentID does not exist.");
             }
 
+            //creating a new training step object using the data from the dto
             var trainingStep = new TrainingStep
             {
                 DepartmentID = dto.DepartmentID,

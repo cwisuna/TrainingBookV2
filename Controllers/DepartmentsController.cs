@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
 using TrainingBookV2.Dtos;
@@ -26,12 +21,14 @@ namespace TrainingBookV2.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DepartmentDto>>> GetAllDepartments()
         {
+            //gets all the departments from the db and maps them to the DepartmentDto
             var departments = await dbContext.Departments.Select(d => new DepartmentDto
             {
                 DepartmentID = d.DepartmentID,
                 DepartmentName = d.DepartmentName,
             }).ToListAsync();
 
+            //returns the list of departments
             return Ok(departments);
         }
 
@@ -39,6 +36,7 @@ namespace TrainingBookV2.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DepartmentDto>> GetDepartmentById(int id)
         {
+            //gets the single department from the db using their departmentId and maps them to the DepartmentDto
             var department = await dbContext.Departments
                 .Where(d => d.DepartmentID == id)
                 .Select(d => new DepartmentDto
@@ -52,6 +50,8 @@ namespace TrainingBookV2.Controllers
             {
                 return NotFound();
             }
+
+            //returns the department
             return Ok(department);
         }
 
@@ -93,14 +93,17 @@ namespace TrainingBookV2.Controllers
         [HttpPost]
         public async Task<ActionResult<DepartmentDto>> CreateDepartment(CreateDepartmentDto dto)
         {
+            //creating a department object using the data from the dto
             var department = new Department
             {
                 DepartmentName = dto.DepartmentName
             };
 
+            //adding the department to the db
             dbContext.Departments.Add(department);
             await dbContext.SaveChangesAsync();
 
+            //creating a response DTO with the generated DepartmentID and name
             var resultDto = new DepartmentDto
             {
                 DepartmentID = department.DepartmentID,
@@ -114,6 +117,7 @@ namespace TrainingBookV2.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDepartment(int id)
         {
+            //getting the department from the db using their departmentId
             var department = await dbContext.Departments.FindAsync(id);
             if (department == null)
             {

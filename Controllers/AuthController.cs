@@ -24,9 +24,11 @@ namespace TrainingBookV2.Controllers
             this.config = config;
         }
 
+        // GET: api/Auth/register
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
+            // creating the user object using the data from the dto
             var user = new ApplicationUser
             {
                 UserName = dto.Username,
@@ -34,24 +36,31 @@ namespace TrainingBookV2.Controllers
                 LastName = dto.LastName
             };
 
+            //creating the user in the db with the password from the dto
             var result = await userManager.CreateAsync(user, dto.Password);
 
+            //returns an error code if creating the user fails
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
+            //if the user is created, you get a success message
             return Ok("User registered successfully.");
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
+            //checks for the user in the db using the username from the dto
             var user = await userManager.FindByNameAsync(dto.Username);
 
+            //if the user is not found, or the password is incorrect, returns an error
             if (user == null || !await userManager.CheckPasswordAsync(user, dto.Password))
                 return Unauthorized("Invalid username or password.");
 
+            //gets the user role(s) 
             var roles = await userManager.GetRolesAsync(user);
 
+            //creates the claims to include in the jwt 
             var claims = new[]
             {
             new Claim(JwtRegisteredClaimNames.Sub, user.UserName),

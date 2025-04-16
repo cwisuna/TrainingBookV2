@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
@@ -32,12 +26,14 @@ namespace TrainingBookV2.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RoleDto>>> GetAllRoles()
         {
+            //getting all roles from the db and mapping them to the RoleDto
             var roles = await dbContext.Roles.Select(r => new RoleDto
             {
                 RoleID = r.Id,
                 RoleName = r.Name,
             }).ToListAsync();
 
+            //returning a list of roles
             return Ok(roles);
         }
 
@@ -45,6 +41,7 @@ namespace TrainingBookV2.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<RoleDto>> GetRoleById(int id)
         {
+            //getting the single role from the db using their roleId and mapping them to the RoleDto
             var role = await dbContext.Roles
                 .Where(r => r.Id == id)
                 .Select(r => new RoleDto
@@ -59,6 +56,7 @@ namespace TrainingBookV2.Controllers
                 return NotFound();
             }
 
+            //returning a single role
             return Ok(role);
         }
 
@@ -67,6 +65,7 @@ namespace TrainingBookV2.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRole(int id, UpdateRoleDto dto)
         {
+            //get the role in the db using its roleId
             var role = await dbContext.Roles.FindAsync(id);
 
             if (role == null)
@@ -100,6 +99,7 @@ namespace TrainingBookV2.Controllers
         [HttpPost]
         public async Task<ActionResult<RoleDto>> CreateRole(CreateRoleDto dto)
         {
+            //creating a new role object using the data from the dto
             var role = new Role
             {
                 Name = dto.RoleName,
@@ -112,6 +112,7 @@ namespace TrainingBookV2.Controllers
                 return BadRequest(result.Errors);
             }
 
+            //creating a role dto response with the generated RoleID and name
             var roleDto = new RoleDto
             {
                 RoleID = role.Id,
@@ -140,14 +141,17 @@ namespace TrainingBookV2.Controllers
         [HttpPost("{userId}/assign-role")]
         public async Task<IActionResult> AssignRoleToUser(string userId, [FromBody] AssignRoleDto dto)
         {
+            //gets a user by their userId
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
                 return NotFound("User not found.");
 
+            //checks if the role exists in the db
             var roleExists = await roleManager.RoleExistsAsync(dto.RoleName);
             if (!roleExists)
                 return BadRequest("Role does not exist.");
 
+            //assigns the role to the user
             var result = await userManager.AddToRoleAsync(user, dto.RoleName);
 
             if (!result.Succeeded)
