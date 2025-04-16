@@ -128,6 +128,38 @@ namespace TrainingBookV2.Controllers
             return Ok("Training steps successfully assigned to the training book.");
         }
 
+        [HttpPost("create-with-steps")]
+        public async Task<ActionResult<UserTrainingBook>> CreateBookWithSteps(CreateBookWithStepsDto dto)
+        {
+            // validating step IDs exist and belong to the selected department
+            var validSteps = await dbContext.TrainingSteps
+                .Where(ts => dto.StepIDs.Contains(ts.StepID) && ts.DepartmentID == dto.DepartmentID)
+                .Select(ts => ts.StepID)
+                .ToListAsync();
+
+            if (!validSteps.Any())
+            {
+                return BadRequest("No valid training steps found for the given department.");
+            }
+
+            var trainingBook = new UserTrainingBook
+            {
+                UserID = dto.UserID,
+                DepartmentID = dto.DepartmentID,
+                CreatedAt = DateTime.UtcNow,
+                TrainingSteps = validSteps.Select(stepId => new UserTrainingStep
+                {
+                    StepID = stepId,
+                    IsCompleted = false
+                }).ToList()
+            };
+
+            dbContext.UserTrainingBooks.Add(trainingBook);
+            await dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetUserTrainingBookById), new { id = trainingBook.UserTrainingBookID }, trainingBook);
+        }
+
         private bool UserTrainingBookExists(int id)
         {
             return dbContext.UserTrainingBooks.Any(e => e.UserTrainingBookID == id);
