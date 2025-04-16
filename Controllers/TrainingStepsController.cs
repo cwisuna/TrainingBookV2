@@ -145,7 +145,7 @@ namespace TrainingBookV2.Controllers
             trainingStep.Item = dto.Item;
             trainingStep.Description = dto.Description;
             trainingStep.TraineeExpectation = dto.TraineeExpectation;
-            trainingStep.TrainerExpectation = trainingStep.TrainerExpectation;
+            trainingStep.TrainerExpectation = dto.TrainerExpectation;
             trainingStep.TrainingDuration = dto.TrainingDuration;
             trainingStep.FilePath = dto.FilePath;
             trainingStep.IsCompleted = dto.IsCompleted;
