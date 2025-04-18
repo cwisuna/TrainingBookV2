@@ -38,6 +38,41 @@ namespace TrainingBookV2.Controllers
             return userTrainingBook;
         }
 
+        // GET: api/UserTrainingBooks/user/5
+        [HttpGet("by-user/{userId}")]
+        public async Task<ActionResult<TrainingBookWithStepsDto>> GetTrainingBookByUserID(int userID)
+        {
+            var trainingBook = await dbContext.UserTrainingBooks
+                .Include(tb => tb.TrainingSteps)
+                .ThenInclude(ts => ts.Step)
+                .OrderByDescending(tb => tb.CreatedAt)
+                .FirstOrDefaultAsync(tb => tb.UserID == userID);
+
+            if (trainingBook == null)
+                return NotFound();
+
+            var dto = new TrainingBookWithStepsDto
+            {
+                BookID = trainingBook.UserTrainingBookID,
+                UserID = trainingBook.UserID,
+                DepartmentID = trainingBook.DepartmentID,
+                CreatedAt = trainingBook.CreatedAt,
+                TrainingSteps = trainingBook.TrainingSteps.Select(uts => new TrainingStepsDto
+                {
+                    StepID = uts.StepID,
+                    Item = uts.Step.Item,
+                    Description = uts.Step.Description,
+                    TraineeExpectation = uts.Step.TraineeExpectation,
+                    TrainerExpectation = uts.Step.TrainerExpectation,
+                    TrainingDuration = uts.Step.TrainingDuration,
+                    FilePath = uts.Step.FilePath,
+                    IsCompleted = uts.IsCompleted,
+                }).ToList()
+            };
+
+            return Ok(dto);
+        }
+
         // PUT: api/UserTrainingBooks/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -157,7 +192,15 @@ namespace TrainingBookV2.Controllers
             dbContext.UserTrainingBooks.Add(trainingBook);
             await dbContext.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUserTrainingBookById), new { id = trainingBook.UserTrainingBookID }, trainingBook);
+            var resultDto = new TrainingBookResultDto
+            {
+                BookID = trainingBook.UserTrainingBookID,
+                UserID = trainingBook.UserID,
+                DepartmentID = trainingBook.DepartmentID,
+                CreatedAt = trainingBook.CreatedAt,
+            };
+
+            return CreatedAtAction(nameof(GetUserTrainingBookById), new { id = resultDto.BookID }, resultDto);
         }
 
         private bool UserTrainingBookExists(int id)

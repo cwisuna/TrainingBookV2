@@ -76,6 +76,7 @@ namespace TrainingBookV2.Controllers
                 .Where(u => u.DepartmentID == departmentId)
                 .Select(u => new ApplicationUserDto
                 {
+                    UserID = u.Id,
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     UserName = u.UserName,
