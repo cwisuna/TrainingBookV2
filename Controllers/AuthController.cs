@@ -33,7 +33,8 @@ namespace TrainingBookV2.Controllers
             {
                 UserName = dto.Username,
                 FirstName = dto.FirstName,
-                LastName = dto.LastName
+                LastName = dto.LastName,
+                DepartmentID = dto.DepartmentID,
             };
 
             //creating the user in the db with the password from the dto
