@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
+using TrainingBookV2.Dtos;
 using TrainingBookV2.Models;
 
 namespace TrainingBookV2.Controllers
@@ -23,9 +24,18 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/TrainingNotes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TrainingNote>>> GetTrainingNotes()
+        public async Task<ActionResult<IEnumerable<TrainingNoteDto>>> GetAllTrainingNotes()
         {
-            return await dbContext.TrainingNotes.ToListAsync();
+            var trainingNotes = await dbContext.TrainingNotes.Select(tn => new TrainingNoteDto
+            {
+                TrainingNoteId = tn.TrainingNoteID,
+                UserTrainingStepId = tn.UserTrainingStepID,
+                AuthorId = tn.AuthorID,
+                Note = tn.Note,
+                CreatedAt = tn.CreatedAt
+            }).ToListAsync();
+
+            return Ok(trainingNotes);
         }
 
         // GET: api/TrainingNotes/5
