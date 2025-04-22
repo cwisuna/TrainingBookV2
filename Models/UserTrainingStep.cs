@@ -9,5 +9,6 @@
         public TrainingStep Step { get; set; }
         public bool IsCompleted { get; set; }
         public DateTime? CompletedAt { get; set; }
+        public ICollection<TrainingNote> Notes { get; set; }
     }
 }

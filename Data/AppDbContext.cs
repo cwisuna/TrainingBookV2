@@ -19,6 +19,7 @@ namespace TrainingBookV2.Data
         public DbSet<TrainingStepSignOff> TrainingStepSignOffs { get; set; }
         public DbSet<UserTrainingBook> UserTrainingBooks { get; set; }
         public DbSet<UserTrainingStep> UserTrainingStep { get; set; }
+        public DbSet<TrainingNote> TrainingNotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -174,6 +175,30 @@ namespace TrainingBookV2.Data
                 .HasOne(uts => uts.Step)
                 .WithMany(s => s.UserTrainingSteps)
                 .HasForeignKey(uts => uts.StepID);
+
+            //TrainingNotes
+            builder.Entity<TrainingNote>(entity =>
+            {
+                entity.ToTable("TrainingNotes");
+                entity.HasKey(e => e.TrainingNoteID);
+
+                entity.Property(n => n.Note)
+                .IsRequired()
+                .HasMaxLength(5000);
+
+                entity.Property(n => n.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+                entity.HasOne(n => n.UserTrainingStep)
+                .WithMany(uts => uts.Notes)
+                .HasForeignKey(n => n.UserTrainingStepID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(n => n.Author)
+                .WithMany()
+                .HasForeignKey(n => n.AuthorID)
+                .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }
