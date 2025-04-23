@@ -35,22 +35,32 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/TrainingNotes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TrainingNote>> GetTrainingNote(int id)
+        public async Task<ActionResult<TrainingNoteDto>> GetTrainingNoteById(int id)
         {
-            var trainingNote = await dbContext.TrainingNotes.FindAsync(id);
+            var trainingNote = await dbContext.TrainingNotes
+                .Where(tn => tn.TrainingNoteID == id)
+                .Select(tn => new TrainingNoteDto
+                {
+                    TrainingNoteId = tn.TrainingNoteID,
+                    UserTrainingStepId = tn.UserTrainingStepID,
+                    AuthorId = tn.AuthorID,
+                    Note = tn.Note,
+                    CreatedAt = tn.CreatedAt
+                })
+                .FirstOrDefaultAsync();
 
-            if (trainingNote == null)
+            if(trainingNote == null)
             {
                 return NotFound();
             }
 
-            return trainingNote;
+            return Ok(trainingNote);
         }
 
         // PUT: api/TrainingNotes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTrainingNote(int id, TrainingNote trainingNote)
+        public async Task<IActionResult> UpdateTrainingNote(int id, TrainingNote trainingNote)
         {
             if (id != trainingNote.TrainingNoteID)
             {
@@ -81,12 +91,29 @@ namespace TrainingBookV2.Controllers
         // POST: api/TrainingNotes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TrainingNote>> PostTrainingNote(TrainingNote trainingNote)
+        public async Task<ActionResult<TrainingNoteDto>> CreateTrainingNote(CreateTrainingNoteDto dto)
         {
+            var trainingNote = new TrainingNote
+            {
+                UserTrainingStepID = dto.UserTrainingStepId,
+                AuthorID = dto.AuthorId,
+                Note = dto.Note,
+                CreatedAt = DateTime.UtcNow
+            };
+
             dbContext.TrainingNotes.Add(trainingNote);
             await dbContext.SaveChangesAsync();
 
-            return CreatedAtAction("GetTrainingNote", new { id = trainingNote.TrainingNoteID }, trainingNote);
+            var resultDto = new TrainingNoteDto
+            {
+                TrainingNoteId = trainingNote.TrainingNoteID,
+                UserTrainingStepId = trainingNote.UserTrainingStepID,
+                AuthorId = trainingNote.AuthorID,
+                Note = trainingNote.Note,
+                CreatedAt = trainingNote.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetTrainingNoteById), new { id = trainingNote.TrainingNoteID }, resultDto);
         }
 
         // DELETE: api/TrainingNotes/5
