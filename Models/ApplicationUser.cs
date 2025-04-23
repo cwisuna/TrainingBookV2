@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace TrainingBookV2.Models
 {
