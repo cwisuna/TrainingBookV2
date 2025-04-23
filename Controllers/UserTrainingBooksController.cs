@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
 using TrainingBookV2.Dtos;
@@ -40,13 +42,13 @@ namespace TrainingBookV2.Controllers
 
         // GET: api/UserTrainingBooks/user/5
         [HttpGet("by-user/{userId}")]
-        public async Task<ActionResult<TrainingBookWithStepsDto>> GetTrainingBookByUserID(int userID)
+        public async Task<ActionResult<TrainingBookWithStepsDto>> GetTrainingBookByUserID(int userId)
         {
             var trainingBook = await dbContext.UserTrainingBooks
                 .Include(tb => tb.TrainingSteps)
                 .ThenInclude(ts => ts.Step)
                 .OrderByDescending(tb => tb.CreatedAt)
-                .FirstOrDefaultAsync(tb => tb.UserID == userID);
+                .FirstOrDefaultAsync(tb => tb.UserID == userId);
 
             if (trainingBook == null)
                 return NotFound();
@@ -71,6 +73,14 @@ namespace TrainingBookV2.Controllers
             };
 
             return Ok(dto);
+        }
+
+        [HttpGet("my-training-book")]
+        [Authorize(Roles = "Trainee")]
+        public async Task<ActionResult<TrainingBookWithStepsDto>> GetSpecificTraineeTrainingBook()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return await GetTrainingBookByUserID(userId);
         }
 
         // PUT: api/UserTrainingBooks/5
