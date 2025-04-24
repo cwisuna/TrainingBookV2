@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using TrainingBookV2.Dtos;
 using TrainingBookV2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace TrainingBookV2.Controllers
 {
@@ -15,13 +16,15 @@ namespace TrainingBookV2.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly RoleManager<Role> roleManager;
         private readonly IConfiguration config;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config, RoleManager<Role> roleManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.config = config;
+            this.roleManager = roleManager;
         }
 
         // GET: api/Auth/register
@@ -43,6 +46,13 @@ namespace TrainingBookV2.Controllers
             //returns an error code if creating the user fails
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
+
+            var role = await roleManager.Roles.FirstOrDefaultAsync(r => r.Id == dto.RoleID);
+            if (role == null)
+                return BadRequest("Role ID is invalid.");
+
+            await userManager.AddToRoleAsync(user, role.Name);
+
 
             //if the user is created, you get a success message
             return Ok("User registered successfully.");
