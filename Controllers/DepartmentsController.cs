@@ -57,7 +57,7 @@ namespace TrainingBookV2.Controllers
             return Ok(department);
         }
 
-        [HttpGet("by-userId{userId}")]
+        [HttpGet("by-userId/{userId}")]
         public async Task<ActionResult<DepartmentDto>> GetUserDepartmentByUserId(int userId)
         {
             var department = await dbContext.Departments
