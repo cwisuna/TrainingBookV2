@@ -55,6 +55,24 @@ namespace TrainingBookV2.Controllers
             return Ok(department);
         }
 
+        [HttpGet("by-userId{userId}")]
+        public async Task<ActionResult<DepartmentDto>> GetUserDepartmentByUserId(int userId)
+        {
+            var department = await dbContext.Departments
+                .Where(d => d.Users.Any(u => u.Id == userId))
+                .Select(d => new DepartmentDto
+                {
+                    DepartmentID = d.DepartmentID,
+                    DepartmentName = d.DepartmentName,
+                })
+                .FirstOrDefaultAsync();
+            if (department == null)
+            {
+                return NotFound();
+            }
+            return Ok(department);
+        }
+
         // PUT: api/Departments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
