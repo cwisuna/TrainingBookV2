@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrainingBookV2.Data;
 using TrainingBookV2.Dtos;
@@ -72,6 +74,30 @@ namespace TrainingBookV2.Controllers
             }
             return Ok(department);
         }
+
+        [Authorize(Roles = "Trainee")]
+        [HttpGet("my-department")]
+        public async Task<ActionResult<DepartmentDto>> GetDepartmentForTrainee()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+                return Unauthorized();
+
+            var department = await dbContext.Departments
+                .Where(d => d.Users.Any(u => u.Id == userId))
+                .Select(d => new DepartmentDto
+                {
+                    DepartmentID = d.DepartmentID,
+                    DepartmentName = d.DepartmentName,
+                })
+                .FirstOrDefaultAsync();
+
+            if (department == null)
+                return NotFound();
+
+            return Ok(department);
+        }
+
 
         // PUT: api/Departments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
