@@ -44,6 +44,30 @@ namespace TrainingBookV2.Controllers
         [HttpGet("by-user/{userId}")]
         public async Task<ActionResult<TrainingBookWithStepsDto>> GetTrainingBookByUserID(int userId)
         {
+            var trainingBook = await FindTrainingBookByUserID(userId);
+
+            if (trainingBook == null)
+                return NotFound();
+
+            return Ok(trainingBook);
+        }
+
+        [HttpGet("my-training-book")]
+        [Authorize(Roles = "Trainee")]
+        public async Task<ActionResult<TrainingBookWithStepsDto>> GetSpecificTraineeTrainingBook()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            Console.WriteLine($"🔍 userId from JWT: {userId}");
+            var trainingBook = await FindTrainingBookByUserID(userId);
+
+            if (trainingBook == null)
+                return NotFound();
+
+            return Ok(trainingBook);
+        }
+
+        private async Task<TrainingBookWithStepsDto?> FindTrainingBookByUserID(int userId)
+        {
             var trainingBook = await dbContext.UserTrainingBooks
                 .Include(tb => tb.TrainingSteps)
                 .ThenInclude(ts => ts.Step)
@@ -51,9 +75,9 @@ namespace TrainingBookV2.Controllers
                 .FirstOrDefaultAsync(tb => tb.UserID == userId);
 
             if (trainingBook == null)
-                return NotFound();
+                return null;
 
-            var dto = new TrainingBookWithStepsDto
+            return new TrainingBookWithStepsDto
             {
                 BookID = trainingBook.UserTrainingBookID,
                 UserID = trainingBook.UserID,
@@ -71,17 +95,8 @@ namespace TrainingBookV2.Controllers
                     IsCompleted = uts.IsCompleted,
                 }).ToList()
             };
-
-            return Ok(dto);
         }
 
-        [HttpGet("my-training-book")]
-        [Authorize(Roles = "Trainee")]
-        public async Task<ActionResult<TrainingBookWithStepsDto>> GetSpecificTraineeTrainingBook()
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            return await GetTrainingBookByUserID(userId);
-        }
 
         // PUT: api/UserTrainingBooks/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
